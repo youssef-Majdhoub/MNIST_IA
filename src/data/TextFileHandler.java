@@ -68,15 +68,14 @@ public class TextFileHandler extends MNISTProvider {
             String line;
             while ((line = br.readLine()) != null) {
                 lineNumber++;
-                if (line.isBlank()) continue;
+                if (line.trim().isEmpty()) continue;
 
                 String[] parts = line.split(",");
-                // 784 pixels + 1 label = 785 champs
                 if (parts.length != VECTOR_SIZE + 1) {
                     throw new DataFormatMismatchException(
                             lineNumber,
                             String.valueOf(parts.length),
-                            "Attendu 785 champs (784 pixels + 1 label), trouvé " + parts.length + "."
+                            "Attendu 785 champs, trouvé " + parts.length + "."
                     );
                 }
 
@@ -86,37 +85,27 @@ public class TextFileHandler extends MNISTProvider {
                         pixelRow[i] = Integer.parseInt(parts[i].trim());
                     } catch (NumberFormatException e) {
                         throw new DataFormatMismatchException(
-                                lineNumber,
-                                parts[i].trim(),
-                                "La valeur n'est pas un entier valide.",
-                                e
+                                lineNumber, parts[i].trim(),
+                                "La valeur n'est pas un entier valide.", e
                         );
                     }
                 }
 
                 String labelStr = parts[VECTOR_SIZE].trim();
                 int numericLabel;
-                if (LABEL_TROIS.equals(labelStr)) {
-                    numericLabel = 3;
-                } else if (LABEL_CINQ.equals(labelStr)) {
-                    numericLabel = 5;
-                } else {
-                    throw new DataFormatMismatchException(
-                            lineNumber,
-                            labelStr,
-                            "Le label doit être 'trois' ou 'cinq'."
-                    );
-                }
+                if (LABEL_TROIS.equals(labelStr))     numericLabel = 3;
+                else if (LABEL_CINQ.equals(labelStr)) numericLabel = 5;
+                else throw new DataFormatMismatchException(
+                        lineNumber, labelStr, "Le label doit être 'trois' ou 'cinq'.");
 
                 pixels.add(pixelRow);
                 labels.add(numericLabel);
             }
-        } catch (DataFormatMismatchException | MNISTFileNotFoundException e) {
+        } catch (DataFormatMismatchException e) {
             throw e;
         } catch (IOException e) {
             throw new MNISTFileNotFoundException(filePath, e);
         }
-
         this.nbImages = pixels.size();
         System.out.println("Fichier chargé : " + nbImages + " lignes lues depuis " + filePath);
     }

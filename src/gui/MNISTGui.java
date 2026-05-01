@@ -9,7 +9,6 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
 
 /**
  * Interface graphique Swing pour la reconnaissance de chiffres manuscrits.
@@ -24,24 +23,24 @@ import java.util.Arrays;
 public class MNISTGui extends JFrame {
 
     // ---- Dimensions ----
-    private static final int CANVAS_SIZE  = 280;
-    private static final int IMG_SIZE     = 28;
-    private static final int STROKE_WIDTH = 18;
+    public static final int CANVAS_SIZE  = 280;
+    static final int IMG_SIZE     = 28;
+    static final int STROKE_WIDTH = 18;
 
     // ---- Composants ----
-    private DrawingCanvas    canvas;
-    private JComboBox<String> modelComboBox;
-    private JLabel           resultLabel;
-    private JLabel           probLabel;
-    private JLabel           statusLabel;
-    private JButton          recognizeBtn;
-    private JButton          clearBtn;
+    DrawingCanvas     canvas;
+    JComboBox<String> modelComboBox;
+    JLabel            resultLabel;
+    JLabel            probLabel;
+    JLabel            statusLabel;
+    JButton           recognizeBtn;
+    JButton           clearBtn;
 
     // ---- Classifieurs ----
-    private DigitClassifier naiveBayes;
-    private DigitClassifier randomForest;
-    private boolean         modelsLoaded = false;
-    private String          arffPath;
+    DigitClassifier naiveBayes;
+    DigitClassifier randomForest;
+    boolean         modelsLoaded = false;
+    String          arffPath;
 
     // ------------------------------------------------------------------ //
     //  Constructeur
@@ -62,19 +61,16 @@ public class MNISTGui extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
 
-        // ---- Panneau principal ----
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
         mainPanel.setBackground(new Color(240, 242, 245));
 
-        // ---- Titre ----
         JLabel titleLabel = new JLabel("Reconnaissance : Trois ou Cinq ?", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         titleLabel.setForeground(new Color(30, 30, 80));
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
-        // ---- Canevas ----
         canvas = new DrawingCanvas();
         canvas.setPreferredSize(new Dimension(CANVAS_SIZE, CANVAS_SIZE));
         canvas.setBorder(BorderFactory.createLineBorder(new Color(100, 100, 200), 2));
@@ -84,14 +80,12 @@ public class MNISTGui extends JFrame {
         canvasWrapper.add(canvas);
         mainPanel.add(canvasWrapper, BorderLayout.CENTER);
 
-        // ---- Panneau de contrôle (droite) ----
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new BoxLayout(controlPanel, BoxLayout.Y_AXIS));
         controlPanel.setOpaque(false);
         controlPanel.setPreferredSize(new Dimension(220, CANVAS_SIZE));
         controlPanel.setBorder(new EmptyBorder(0, 10, 0, 0));
 
-        // Sélecteur de modèle
         JLabel modelLabel = new JLabel("Modèle :");
         modelLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         modelLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -101,16 +95,13 @@ public class MNISTGui extends JFrame {
         modelComboBox.setMaximumSize(new Dimension(200, 35));
         modelComboBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Bouton Reconnaître
         recognizeBtn = createStyledButton("🔍  Reconnaître", new Color(60, 100, 200));
         recognizeBtn.addActionListener(e -> recognize());
         recognizeBtn.setEnabled(false);
 
-        // Bouton Effacer
         clearBtn = createStyledButton("🗑   Effacer", new Color(180, 60, 60));
         clearBtn.addActionListener(e -> canvas.clear());
 
-        // Zone de résultat
         JPanel resultPanel = new JPanel();
         resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
         resultPanel.setBackground(new Color(255, 255, 255, 200));
@@ -139,13 +130,11 @@ public class MNISTGui extends JFrame {
         resultPanel.add(Box.createVerticalStrut(3));
         resultPanel.add(probLabel);
 
-        // Status bar
         statusLabel = new JLabel("Chargement des modèles...");
         statusLabel.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         statusLabel.setForeground(new Color(120, 120, 120));
         statusLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
-        // Assemblage du panneau de contrôle
         controlPanel.add(modelLabel);
         controlPanel.add(Box.createVerticalStrut(5));
         controlPanel.add(modelComboBox);
@@ -160,8 +149,8 @@ public class MNISTGui extends JFrame {
 
         mainPanel.add(controlPanel, BorderLayout.EAST);
 
-        // Instruction
-        JLabel hint = new JLabel("Dessinez un 3 ou un 5 dans la zone de gauche, puis cliquez sur « Reconnaître ».",
+        JLabel hint = new JLabel(
+                "Dessinez un 3 ou un 5 dans la zone de gauche, puis cliquez sur « Reconnaître ».",
                 SwingConstants.CENTER);
         hint.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         hint.setForeground(new Color(100, 100, 130));
@@ -192,7 +181,7 @@ public class MNISTGui extends JFrame {
     //  Chargement asynchrone des modèles
     // ------------------------------------------------------------------ //
 
-    private void loadModelsAsync() {
+    public void loadModelsAsync() {
         new Thread(() -> {
             try {
                 naiveBayes   = new NaiveBayesClassifier(arffPath);
@@ -207,10 +196,6 @@ public class MNISTGui extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     statusLabel.setText("Erreur : " + e.getMessage());
                     statusLabel.setForeground(Color.RED);
-                    JOptionPane.showMessageDialog(MNISTGui.this,
-                            "Impossible de charger les modèles :\n" + e.getMessage()
-                            + "\n\nVérifiez que le fichier ARFF existe : " + arffPath,
-                            "Erreur de chargement", JOptionPane.ERROR_MESSAGE);
                 });
             }
         }).start();
@@ -220,17 +205,10 @@ public class MNISTGui extends JFrame {
     //  Reconnaissance
     // ------------------------------------------------------------------ //
 
-    private void recognize() {
-        if (!modelsLoaded) {
-            JOptionPane.showMessageDialog(this,
-                    "Les modèles sont encore en cours de chargement. Patientez...",
-                    "Patientez", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
+    public void recognize() {
+        if (!modelsLoaded) return;
         int[] pixelVector = canvas.toPixelVector();
         String selected = (String) modelComboBox.getSelectedItem();
-
         try {
             DigitClassifier clf = "Naive Bayes".equals(selected) ? naiveBayes : randomForest;
             String prediction   = clf.predict(pixelVector);
@@ -239,23 +217,32 @@ public class MNISTGui extends JFrame {
             resultLabel.setText(prediction.toUpperCase());
             probLabel.setText(String.format("Probabilité : %.1f %%", probability * 100));
 
-            Color color = "trois".equals(prediction)
-                    ? new Color(20, 100, 200)
-                    : new Color(180, 80, 0);
-            resultLabel.setForeground(color);
-
+            resultLabel.setForeground("trois".equals(prediction)
+                    ? new Color(20, 100, 200) : new Color(180, 80, 0));
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
-                    "Erreur lors de la reconnaissance :\n" + ex.getMessage(),
-                    "Erreur", JOptionPane.ERROR_MESSAGE);
+                    "Erreur : " + ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
         }
     }
+
+    // ------------------------------------------------------------------ //
+    //  Getters pour TestComplet
+    // ------------------------------------------------------------------ //
+
+    public DrawingCanvas     getCanvas()       { return canvas; }
+    public JComboBox<String> getModelCombo()   { return modelComboBox; }
+    public JLabel            getResultLabel()  { return resultLabel; }
+    public JLabel            getProbLabel()    { return probLabel; }
+    public JLabel            getStatusLabel()  { return statusLabel; }
+    public JButton           getRecognizeBtn() { return recognizeBtn; }
+    public JButton           getClearBtn()     { return clearBtn; }
+    public boolean           isModelsLoaded()  { return modelsLoaded; }
 
     // ================================================================== //
     //  Canevas de dessin
     // ================================================================== //
 
-    private static class DrawingCanvas extends JPanel {
+    public static class DrawingCanvas extends JPanel {
 
         private BufferedImage image;
         private Graphics2D    g2;
@@ -263,14 +250,10 @@ public class MNISTGui extends JFrame {
         DrawingCanvas() {
             setBackground(Color.WHITE);
             addMouseListener(new MouseAdapter() {
-                @Override public void mousePressed(MouseEvent e) {
-                    draw(e.getX(), e.getY());
-                }
+                public void mousePressed(MouseEvent e) { draw(e.getX(), e.getY()); }
             });
             addMouseMotionListener(new MouseAdapter() {
-                @Override public void mouseDragged(MouseEvent e) {
-                    draw(e.getX(), e.getY());
-                }
+                public void mouseDragged(MouseEvent e) { draw(e.getX(), e.getY()); }
             });
         }
 
@@ -284,7 +267,7 @@ public class MNISTGui extends JFrame {
             }
         }
 
-        void draw(int x, int y) {
+        public void draw(int x, int y) {
             ensureImage();
             g2.setColor(Color.BLACK);
             g2.fillOval(x - STROKE_WIDTH / 2, y - STROKE_WIDTH / 2,
@@ -292,18 +275,16 @@ public class MNISTGui extends JFrame {
             repaint();
         }
 
-        void clear() {
+        public void clear() {
             ensureImage();
             g2.setColor(Color.WHITE);
             g2.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
             repaint();
-            // Réinitialise aussi les labels du parent si accessible
         }
 
-        /**
-         * Redimensionne le canevas 280×280 à 28×28 et retourne le vecteur de pixels.
-         */
-        int[] toPixelVector() {
+        public BufferedImage getImage() { ensureImage(); return image; }
+
+        public int[] toPixelVector() {
             ensureImage();
             BufferedImage small = new BufferedImage(IMG_SIZE, IMG_SIZE,
                                                     BufferedImage.TYPE_BYTE_GRAY);
@@ -314,18 +295,15 @@ public class MNISTGui extends JFrame {
             gs.dispose();
 
             int[] pixels = new int[IMG_SIZE * IMG_SIZE];
-            for (int y = 0; y < IMG_SIZE; y++) {
+            for (int y = 0; y < IMG_SIZE; y++)
                 for (int x = 0; x < IMG_SIZE; x++) {
-                    // MNIST : blanc = 0, noir = 255 (inverse de l'écran)
                     int rgb  = small.getRGB(x, y);
-                    int grey = (rgb >> 16) & 0xFF;          // canal rouge du gris
-                    pixels[y * IMG_SIZE + x] = 255 - grey;  // inversion
+                    int grey = (rgb >> 16) & 0xFF;
+                    pixels[y * IMG_SIZE + x] = 255 - grey; // inversion MNIST
                 }
-            }
             return pixels;
         }
 
-        @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             ensureImage();
@@ -334,14 +312,11 @@ public class MNISTGui extends JFrame {
     }
 
     // ------------------------------------------------------------------ //
-    //  Point d'entrée
+    //  Main
     // ------------------------------------------------------------------ //
 
     public static void main(String[] args) {
-        String arffPath = "data/train-data.arff";
-        if (args.length > 0) arffPath = args[0];
-
-        final String path = arffPath;
-        SwingUtilities.invokeLater(() -> new MNISTGui(path));
+        String arffPath = args.length > 0 ? args[0] : "data/train-data.arff";
+        SwingUtilities.invokeLater(() -> new MNISTGui(arffPath));
     }
 }
