@@ -65,9 +65,8 @@ java -cp ".:path/to/weka.jar" test.TestComplet
 Vous verrez une barre de progression et un terminal intégré validant en temps réel les accès fichiers, les exceptions, la précision des algorithmes (Accuracy > 50%) et les interactions graphiques simulées.
 
 📸 Captures d'écran
-(Ajoutez ici des images de votre application pour rendre le README plus attractif)
 
-Interface de dessin : ![Interface](lien_vers_image_interface.png)
+Interface de dessin :[ ![Interface](lien_vers_image_interface.png)](https://github.com/youssef-Majdhoub/MNIST_IA/blob/master/capture_interface.png)
 
 Fenêtre des tests complets : ![Tests](lien_vers_image_tests.png)
 
