@@ -68,7 +68,6 @@ Vous verrez une barre de progression et un terminal intégré validant en temps 
 
 Interface de dessin :[ ![Interface](lien_vers_image_interface.png)](https://github.com/youssef-Majdhoub/MNIST_IA/blob/master/capture_interface.png)
 
-Fenêtre des tests complets : ![Tests](lien_vers_image_tests.png)
 
 🛠️ Améliorations futures possibles
 Étendre la reconnaissance à l'ensemble des 10 chiffres (0 à 9).
